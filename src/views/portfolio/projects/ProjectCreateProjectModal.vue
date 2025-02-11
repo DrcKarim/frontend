@@ -210,6 +210,18 @@
             :label="$t('message.swid_tagid')"
             :tooltip="$t('message.component_swid_tagid_desc')"
           />
+          <!--======================== What I added ==========================-->
+          <b-input-group-form-input
+            id="project-productId-input"
+            input-group-size="mb-3"
+            type="text"
+            v-model="project.productId"
+            required="false"
+            :label="$t('message.productId')"
+            :tooltip="$t('message.component_productId_desc')"
+          />
+          <!--======================== I added this to show the error below input ==========================-->
+          <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
         </b-card>
       </b-tab>
       <!--
@@ -273,6 +285,7 @@ export default {
       isDisabled: false,
       readOnlyProjectName: '',
       readOnlyProjectVersion: '',
+      errorMessage: '',
       availableTeams: [],
       selectableLicenses: [],
       selectedLicense: '',
@@ -351,6 +364,7 @@ export default {
       this.showCollectionTags = value === 'AGGREGATE_DIRECT_CHILDREN_WITH_TAG';
     },
     createProject: function () {
+      console.log('createProject function triggered');
       let url = `${this.$api.BASE_URL}/${this.$api.URL_PROJECT}`;
       let tagsNode = [];
       let choosenTeams = this.teams.filter((team) => {
@@ -365,6 +379,15 @@ export default {
         parent = { uuid: this.selectedParent.uuid };
       }
       this.tags.forEach((tag) => tagsNode.push({ name: tag.text }));
+      console.log('Sending request to:', url); // Log the API URL
+      console.log('Project Data:', {
+        name: this.project.name,
+        version: this.project.version,
+        group: this.project.group,
+        description: this.project.description,
+        productId: this.project.productId, // Log the product ID to debug
+      });
+
       this.axios
         .put(url, {
           name: this.project.name,
@@ -375,17 +398,11 @@ export default {
           parent: parent,
           classifier: this.project.classifier,
           accessTeams: choosenTeamswithoutAPIKeys,
-          collectionLogic: this.project.collectionLogic,
-          collectionTag:
-            this.project.collectionLogic ===
-              'AGGREGATE_DIRECT_CHILDREN_WITH_TAG' &&
-            this.collectionTags &&
-            this.collectionTags.length > 0
-              ? { name: this.collectionTags[0].text }
-              : null,
           purl: this.project.purl,
           cpe: this.project.cpe,
           swidTagId: this.project.swidTagId,
+          //Adding project id
+          productId: this.project.productId,
           copyright: this.project.copyright,
           tags: tagsNode,
           active: true,
@@ -396,13 +413,29 @@ export default {
           this.$toastr.s(this.$t('message.project_created'));
           this.selectedParent = null;
           this.availableParents = [{ value: null, text: '' }];
+          console.warn('Project created');
+
+          // Only hide modal when project is successfully created
+          this.$root.$emit('bv::hide::modal', 'projectCreateProjectModal');
         })
         .catch((error) => {
-          this.$toastr.w(this.$t('condition.unsuccessful_action'));
-        })
-        .finally(() => {
-          this.$root.$emit('bv::hide::modal', 'projectCreateProjectModal');
+          if (error.response && error.response.status === 409) {
+            // ==> Handle duplicate productId error with teast message
+            console.warn('Duplicate Product ID detected');
+            this.$toastr.e(this.$t('condition.duplicate_product_id')); // Show error message
+            this.errorMessage =
+              'This Product ID already exists. Please enter a different one.'; // dupicate error message
+          } else {
+            console.warn('Inside else');
+            //   this.$toastr.w(this.$t('condition.unsuccessful_action')); // Generic error
+            //   this.$toastr.e(this.$t('condition.duplicate_product_id')); // Show error message
+            this.errorMessage =
+              'This Product ID already exists. Please enter a different one.'; // dupicate error message
+          }
         });
+      /*  .finally(() => {
+          this.$root.$emit('bv::hide::modal', 'projectCreateProjectModal');
+        }); */
     },
     retrieveLicenses: function () {
       return new Promise((resolve) => {
