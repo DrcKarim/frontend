@@ -476,6 +476,7 @@ export default {
       this.availableParents = [];
       this.collectionTags = [];
       this.showCollectionTags = false;
+      this.errorMessage = ''; // Clear the error message here
     },
     createProjectLabel: function (project) {
       if (project.version) {
