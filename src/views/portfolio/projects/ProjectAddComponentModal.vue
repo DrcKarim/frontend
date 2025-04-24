@@ -64,6 +64,15 @@
             required="false"
             :label="$t('message.cpe_full')"
             :tooltip="$t('message.component_cpe_desc')"
+          /><!--========================== Adding new CPE ================================-->
+          <b-input-group-form-input
+            id="component-cpe2-input"
+            input-group-size="mb-3"
+            type="text"
+            v-model="component.cpe2"
+            required="false"
+            :label="$t('message.cpe2_full')"
+            :tooltip="$t('message.component_cpe_desc')"
           />
           <b-input-group-form-input
             id="component-swidTagId-input"
@@ -305,6 +314,7 @@ export default {
           classifier: this.component.classifier,
           purl: this.component.purl,
           cpe: this.component.cpe,
+          cpe2: this.component.cpe2,
           swidTagId: this.component.swidTagId,
           productId: this.component.productId,
           copyright: this.component.copyright,
@@ -338,6 +348,7 @@ export default {
         classifier: null,
         purl: null,
         cpe: null,
+        cpe2: null,
         swidTagId: null,
         productId: null,
         copyright: null,

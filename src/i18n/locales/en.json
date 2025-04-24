@@ -426,6 +426,7 @@
     "copyright": "Copyright",
     "cpe": "CPE",
     "cpe_full": "Common Platform Enumeration (CPE)",
+    "cpe2_full": "Common Platform Enumeration (CPE - Running With)",
     "create": "Create",
     "create_component_property": "Create Component Property",
     "create_license_group": "Create License Group",
